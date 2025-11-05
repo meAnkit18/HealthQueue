@@ -137,7 +137,8 @@ function ChartTooltipContent({
   nameKey,
   labelKey,
   ...props
-}: ChartTooltipContentProps): JSX.Element | null {
+}: ChartTooltipContentProps): React.ReactNode {
+
   const { config } = useChart()
 
   const tooltipLabel = React.useMemo(() => {
