@@ -13,14 +13,21 @@ export const metadata: Metadata = {
   generator: "v0.app",
 }
 
-export default function RootLayout({
+import { cookies } from 'next/headers';
+import Header from "@/components/Header";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookieStore = await cookies();
+  const isLoggedIn = cookieStore.get('isLoggedIn')?.value === 'true';
+
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
+        <Header isLoggedIn={isLoggedIn} />
         {children}
         <Analytics />
       </body>

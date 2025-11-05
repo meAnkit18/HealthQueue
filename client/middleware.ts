@@ -21,11 +21,11 @@ export function middleware(req: NextRequest) {
 
   const isLoggedIn = req.cookies.get('isLoggedIn');
 
-  if (!isLoggedIn && !['/login', '/patient', '/doctor'].includes(pathname)) {
+  if (!isLoggedIn && pathname !== '/login') {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  if (isLoggedIn && (pathname === '/login' || pathname === '/patient' || pathname === '/doctor')) {
+  if (isLoggedIn && pathname === '/login') {
     return NextResponse.redirect(new URL('/', req.url));
   }
 

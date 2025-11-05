@@ -14,21 +14,10 @@ export default function LoginPage() {
   const [loginCode, setLoginCode] = useState("")
   const [userType, setUserType] = useState("patient")
   const [error, setError] = useState("")
-  const [user, setUser] = useState(null)
-
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/logout");
-      window.location.reload();
-    } catch (error) {
-      console.error("Failed to logout");
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    setUser(null)
 
     if (!phoneNumber || !loginCode) {
       setError("Phone number and login code are required")
@@ -47,7 +36,6 @@ export default function LoginPage() {
       const data = await res.json()
 
       if (res.ok) {
-        setUser(data.user)
         window.location.href = '/'
       } else {
         setError(data.error || "Something went wrong")
@@ -65,57 +53,48 @@ export default function LoginPage() {
           <CardDescription>Enter your phone number and login code.</CardDescription>
         </CardHeader>
         <CardContent>
-          {user ? (
-            <div>
-              <p className="font-semibold">Welcome, {user.name}!</p>
-              <Button onClick={handleLogout} className="mt-4 w-full">
-                Logout
-              </Button>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Are you a patient or a doctor?</Label>
+              <RadioGroup
+                defaultValue="patient"
+                onValueChange={setUserType}
+                className="flex space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="patient" id="patient" />
+                  <Label htmlFor="patient">Patient</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="doctor" id="doctor" />
+                  <Label htmlFor="doctor">Doctor</Label>
+                </div>
+              </RadioGroup>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Are you a patient or a doctor?</Label>
-                <RadioGroup
-                  defaultValue="patient"
-                  onValueChange={setUserType}
-                  className="flex space-x-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="patient" id="patient" />
-                    <Label htmlFor="patient">Patient</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="doctor" id="doctor" />
-                    <Label htmlFor="doctor">Doctor</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber">Phone Number</Label>
-                <Input
-                  id="phoneNumber"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="1234567890"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="loginCode">Login Code</Label>
-                <Input
-                  id="loginCode"
-                  value={loginCode}
-                  onChange={(e) => setLoginCode(e.target.value)}
-                  placeholder="123456"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
-            </form>
-          )}
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Input
+                id="phoneNumber"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="1234567890"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="loginCode">Login Code</Label>
+              <Input
+                id="loginCode"
+                value={loginCode}
+                onChange={(e) => setLoginCode(e.target.value)}
+                placeholder="123456"
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full">
+              Login
+            </Button>
+          </form>
           {error && (
             <div className="mt-4 p-4 bg-red-100 text-red-800 rounded-md">
               <p className="font-semibold">{error}</p>
