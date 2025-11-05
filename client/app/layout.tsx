@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 
 import { cookies } from 'next/headers';
 import Header from "@/components/Header";
+import { Chatbot } from "@/components/Chatbot"; // Import Chatbot component
 
 export default async function RootLayout({
   children,
@@ -30,6 +31,7 @@ export default async function RootLayout({
         <Header isLoggedIn={isLoggedIn} />
         {children}
         <Analytics />
+        <Chatbot /> {/* Add Chatbot component here */}
       </body>
     </html>
   )
