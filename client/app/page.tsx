@@ -61,7 +61,7 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground mb-3">HealthQueue</h1>
+          {/* <h1 className="text-4xl font-bold tracking-tight text-foreground mb-3">HealthQueue</h1> */}
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Intelligent hospital queue management system designed for seamless patient flow and improved healthcare
             delivery

@@ -98,7 +98,9 @@ export default function ReceptionPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon"
+              className="bg-black/10"
+              >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
             </Link>
@@ -112,7 +114,7 @@ export default function ReceptionPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Search */}
-        <div className="mb-6 relative">
+        <div className="mb-6 relative border-2-primary/100 rounded-md">
           <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
           <Input
             placeholder="Search by name or registration ID..."
