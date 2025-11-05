@@ -2,7 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { PatientQueue } from "@/lib/types"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,7 +13,27 @@ import { ChevronLeft, Plus, Search } from "lucide-react"
 import { mockPatients, mockDepartments } from "@/lib/data"
 
 export default function ReceptionPage() {
-  const [patients, setPatients] = useState(mockPatients)
+  const [patients, setPatients] = useState<PatientQueue[]>([])
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await fetch('/api/queue');
+        if (!response.ok) {
+          throw new Error('Failed to fetch patients');
+        }
+        const data = await response.json();
+        setPatients(data);
+      } catch (error) {
+        console.error('Error fetching patients:', error);
+      }
+    };
+
+    fetchPatients();
+    // Set up polling to refresh the data every 30 seconds
+    const interval = setInterval(fetchPatients, 30000);
+    return () => clearInterval(interval);
+  }, [])
   const [searchTerm, setSearchTerm] = useState("")
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
@@ -33,25 +54,29 @@ export default function ReceptionPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleAddPatient = () => {
+  const handleAddPatient = async () => {
     if (formData.name && formData.age && formData.phone && formData.department) {
-      const newPatient = {
-        id: String(patients.length + 1),
-        registrationId: `REG-2024-${String(patients.length + 1).padStart(3, "0")}`,
-        name: formData.name,
-        age: Number.parseInt(formData.age),
-        gender: formData.gender,
-        phone: formData.phone,
-        department: formData.department,
-        doctor: formData.doctor,
-        checkInTime: new Date(),
-        queueNumber: patients.filter((p) => p.department === formData.department).length + 1,
-        status: "waiting" as const,
-        estimatedWaitTime: 20,
+      try {
+        const response = await fetch('/api/queue', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add patient');
+        }
+
+        const newPatient = await response.json();
+        setPatients([...patients, newPatient]);
+        setFormData({ name: "", age: "", gender: "", phone: "", department: "", doctor: "" });
+        setShowForm(false);
+      } catch (error) {
+        console.error('Error adding patient:', error);
+        // You might want to show an error message to the user here
       }
-      setPatients([...patients, newPatient])
-      setFormData({ name: "", age: "", gender: "", phone: "", department: "", doctor: "" })
-      setShowForm(false)
     }
   }
 

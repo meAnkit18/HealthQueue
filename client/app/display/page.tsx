@@ -1,11 +1,31 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { mockPatients } from "@/lib/data"
+import { PatientQueue } from "@/lib/types"
 
 export default function DisplayPage() {
   const [time, setTime] = useState<string>("")
-  const [patients, setPatients] = useState(mockPatients)
+  const [patients, setPatients] = useState<PatientQueue[]>([])
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await fetch('/api/queue');
+        if (!response.ok) {
+          throw new Error('Failed to fetch patients');
+        }
+        const data = await response.json();
+        setPatients(data);
+      } catch (error) {
+        console.error('Error fetching patients:', error);
+      }
+    };
+
+    fetchPatients();
+    // Update data every 10 seconds
+    const interval = setInterval(fetchPatients, 10000);
+    return () => clearInterval(interval);
+  }, [])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -73,7 +93,7 @@ export default function DisplayPage() {
                 <div className="space-y-2">
                   {deptPatients.slice(0, 5).map((patient) => (
                     <div
-                      key={patient.id}
+                      key={patient._id}
                       className={`p-2 rounded text-sm font-semibold text-center
                         ${patient.status === "in-consultation" ? "bg-green-500" : ""}
                         ${patient.status === "called" ? "bg-blue-500" : ""}

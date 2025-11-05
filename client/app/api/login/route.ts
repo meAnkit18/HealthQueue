@@ -29,7 +29,27 @@ export async function POST(req: Request) {
     }
 
     const response = NextResponse.json({ success: true, user }, { status: 200 });
-    response.cookies.set('isLoggedIn', 'true');
+    
+    // Set cookies with user information
+    response.cookies.set('isLoggedIn', 'true', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 // 7 days
+    });
+    response.cookies.set('userType', userType, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60
+    });
+    response.cookies.set('userId', user._id.toString(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60
+    });
+    
     return response;
   } catch (error) {
     console.error(error);
