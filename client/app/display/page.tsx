@@ -15,7 +15,9 @@ export default function DisplayPage() {
           throw new Error('Failed to fetch patients');
         }
         const data = await response.json();
-        setPatients(data);
+        // convert checkInTime strings to Date objects for rendering
+        const normalized = data.map((p: any) => ({ ...p, checkInTime: p.checkInTime ? new Date(p.checkInTime) : null }));
+        setPatients(normalized);
       } catch (error) {
         console.error('Error fetching patients:', error);
       }

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import Link from "next/link"
 
 export default function DoctorRegistrationPage() {
   const [name, setName] = useState("")
@@ -87,6 +88,12 @@ export default function DoctorRegistrationPage() {
               <p className="font-semibold">{error}</p>
             </div>
           )}
+          <div className="mt-4 text-center text-sm">
+            Already registered?{' '}
+            <Link href="/login?userType=doctor" className="underline">
+              Login as a doctor
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

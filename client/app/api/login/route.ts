@@ -9,7 +9,10 @@ export async function POST(req: Request) {
   await dbConnect();
 
   try {
-    const { phoneNumber, loginCode, userType } = await req.json();
+    const body = await req.json();
+    const phoneNumber = String(body.phoneNumber || '').trim();
+    const loginCode = String(body.loginCode || '').trim();
+    const userType = String(body.userType || '').trim();
 
     if (!phoneNumber || !loginCode || !userType) {
       return NextResponse.json({ error: 'Phone number, login code, and user type are required' }, { status: 400 });
@@ -17,36 +20,44 @@ export async function POST(req: Request) {
 
     let user;
     if (userType === 'patient') {
-      user = await Patient.findOne({ phoneNumber, loginCode });
+      user = await Patient.findOne({ phoneNumber: phoneNumber, loginCode: loginCode });
     } else if (userType === 'doctor') {
-      user = await Doctor.findOne({ phoneNumber, loginCode });
+      user = await Doctor.findOne({ phoneNumber: phoneNumber, loginCode: loginCode });
     } else {
       return NextResponse.json({ error: 'Invalid user type' }, { status: 400 });
     }
 
     if (!user) {
+      console.log('Login failed - no user found for', { userType, phoneNumber, loginCode });
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const response = NextResponse.json({ success: true, user }, { status: 200 });
+    // remove sensitive fields before sending back
+    const userObj = user.toObject ? user.toObject() : user;
+    if (userObj.loginCode) delete userObj.loginCode;
+
+    const response = NextResponse.json({ success: true, user: userObj }, { status: 200 });
     
     // Set cookies with user information
     response.cookies.set('isLoggedIn', 'true', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 // 7 days
     });
     response.cookies.set('userType', userType, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60
     });
     response.cookies.set('userId', user._id.toString(), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60
     });
     

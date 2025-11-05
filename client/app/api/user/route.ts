@@ -8,7 +8,7 @@ export async function GET() {
   await dbConnect();
 
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const userType = cookieStore.get('userType')?.value;
     const userId = cookieStore.get('userId')?.value;
 

@@ -23,7 +23,9 @@ export default function ReceptionPage() {
           throw new Error('Failed to fetch patients');
         }
         const data = await response.json();
-        setPatients(data);
+        // convert checkInTime strings to Date objects for rendering
+        const normalized = data.map((p: any) => ({ ...p, checkInTime: p.checkInTime ? new Date(p.checkInTime) : new Date() }));
+        setPatients(normalized);
       } catch (error) {
         console.error('Error fetching patients:', error);
       }
@@ -65,16 +67,21 @@ export default function ReceptionPage() {
           body: JSON.stringify(formData),
         });
 
+        const resBody = await response.json();
         if (!response.ok) {
-          throw new Error('Failed to add patient');
+          // if server sent an error message, surface it
+          throw new Error(resBody?.error || 'Failed to add patient');
         }
 
-        const newPatient = await response.json();
+        // Normalize server response
+        const newPatient = { ...resBody, checkInTime: resBody.checkInTime ? new Date(resBody.checkInTime) : new Date() };
         setPatients([...patients, newPatient]);
         setFormData({ name: "", age: "", gender: "", phone: "", department: "", doctor: "" });
         setShowForm(false);
       } catch (error) {
         console.error('Error adding patient:', error);
+        // Show a basic alert in the UI for now so receptionist sees the message
+        alert((error as any).message || 'Failed to add patient');
         // You might want to show an error message to the user here
       }
     }
@@ -189,7 +196,7 @@ export default function ReceptionPage() {
                 </thead>
                 <tbody>
                   {filteredPatients.map((patient) => (
-                    <tr key={patient.id} className="border-b hover:bg-muted/50">
+                    <tr key={patient._id} className="border-b hover:bg-muted/50">
                       <td className="py-3 px-4 font-mono text-primary">{patient.registrationId}</td>
                       <td className="py-3 px-4">{patient.name}</td>
                       <td className="py-3 px-4">
@@ -197,7 +204,7 @@ export default function ReceptionPage() {
                       </td>
                       <td className="py-3 px-4">{patient.department}</td>
                       <td className="py-3 px-4 text-muted-foreground">
-                        {patient.checkInTime.toLocaleTimeString("en-IN")}
+                        {patient.checkInTime ? new Date(patient.checkInTime).toLocaleTimeString("en-IN") : "-"}
                       </td>
                       <td className="py-3 px-4">
                         <span

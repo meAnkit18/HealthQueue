@@ -8,11 +8,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Link from "next/link"
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function LoginPage() {
+  const searchParams = useSearchParams()
+  const initialUserType = searchParams?.get('userType') || 'patient'
+  const router = useRouter()
   const [phoneNumber, setPhoneNumber] = useState("")
   const [loginCode, setLoginCode] = useState("")
-  const [userType, setUserType] = useState("patient")
+  const [userType, setUserType] = useState(initialUserType)
   const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,13 +34,20 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        // ensure browser accepts Set-Cookie from the response
+        credentials: 'include',
         body: JSON.stringify({ phoneNumber, loginCode, userType }),
       })
 
       const data = await res.json()
 
       if (res.ok) {
-        window.location.href = '/'
+        // Navigate doctors to doctor dashboard, patients to home
+        if (userType === 'doctor') {
+          router.push('/doctor/dashboard')
+        } else {
+          router.push('/')
+        }
       } else {
         setError(data.error || "Something went wrong")
       }
@@ -57,7 +68,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label>Are you a patient or a doctor?</Label>
               <RadioGroup
-                defaultValue="patient"
+                defaultValue={initialUserType}
                 onValueChange={setUserType}
                 className="flex space-x-4"
               >

@@ -1,6 +1,13 @@
 
 import mongoose from 'mongoose';
 
+// Small ambient declaration so we can attach a cache to global in a Node
+// environment without TypeScript errors in server contexts.
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  var mongoose: any;
+}
+
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/innotech';
 
 if (!MONGODB_URI) {
@@ -12,6 +19,7 @@ if (!MONGODB_URI) {
 let cached = global.mongoose;
 
 if (!cached) {
+  // give cached a consistent shape
   cached = global.mongoose = { conn: null, promise: null };
 }
 
