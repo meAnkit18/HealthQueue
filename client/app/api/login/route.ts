@@ -1,5 +1,6 @@
 
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import dbConnect from '@/lib/db';
 import Patient from '@/lib/models/Patient';
 import Doctor from '@/lib/models/Doctor';
@@ -27,7 +28,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true, user }, { status: 200 });
+    const response = NextResponse.json({ success: true, user }, { status: 200 });
+    response.cookies.set('isLoggedIn', 'true');
+    return response;
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import Link from "next/link"
 
 export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState("")
@@ -14,6 +15,15 @@ export default function LoginPage() {
   const [userType, setUserType] = useState("patient")
   const [error, setError] = useState("")
   const [user, setUser] = useState(null)
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/logout");
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to logout");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,6 +48,7 @@ export default function LoginPage() {
 
       if (res.ok) {
         setUser(data.user)
+        window.location.href = '/'
       } else {
         setError(data.error || "Something went wrong")
       }
@@ -57,7 +68,7 @@ export default function LoginPage() {
           {user ? (
             <div>
               <p className="font-semibold">Welcome, {user.name}!</p>
-              <Button onClick={() => setUser(null)} className="mt-4 w-full">
+              <Button onClick={handleLogout} className="mt-4 w-full">
                 Logout
               </Button>
             </div>
@@ -110,6 +121,17 @@ export default function LoginPage() {
               <p className="font-semibold">{error}</p>
             </div>
           )}
+          <div className="mt-4 text-center text-sm">
+            Don't have an account?{" "}
+            <Link href="/patient" className="underline">
+              Register as a patient
+            </Link>
+            {" or "}
+            <Link href="/doctor" className="underline">
+              register as a doctor
+            </Link>
+            .
+          </div>
         </CardContent>
       </Card>
     </div>

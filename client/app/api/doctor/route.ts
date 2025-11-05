@@ -17,6 +17,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Name and phone number are required' }, { status: 400 });
     }
 
+    const existingDoctor = await Doctor.findOne({ phoneNumber });
+
+    if (existingDoctor) {
+      return NextResponse.json({ error: 'Doctor with this phone number already exists' }, { status: 409 });
+    }
+
     const loginCode = generateLoginCode();
 
     const newDoctor = new Doctor({
