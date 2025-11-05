@@ -102,19 +102,23 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
+// Strongly-typed payload item for tooltip
+type TooltipPayloadItem = {
+  dataKey?: string
+  name?: string
+  value?: any
+  payload?: Record<string, any>
+  color?: string
+}
+
 interface ChartTooltipContentProps extends React.HTMLAttributes<HTMLDivElement> {
   active?: boolean
-  payload?: Array<{
-    dataKey?: string
-    name?: string
-    value?: any
-    payload?: any
-  }>
+  payload?: TooltipPayloadItem[]
   indicator?: 'line' | 'dot' | 'dashed'
   hideLabel?: boolean
   hideIndicator?: boolean
   label?: React.ReactNode
-  labelFormatter?: (label: React.ReactNode, payload: any[]) => React.ReactNode
+  labelFormatter?: (label: React.ReactNode, payload: TooltipPayloadItem[]) => React.ReactNode
   labelClassName?: string
   formatter?: (value: any, name: string, props: any) => React.ReactNode
   color?: string
@@ -137,8 +141,7 @@ function ChartTooltipContent({
   nameKey,
   labelKey,
   ...props
-}: ChartTooltipContentProps): React.ReactNode {
-
+}: ChartTooltipContentProps): React.JSX.Element | null {
   const { config } = useChart()
 
   const tooltipLabel = React.useMemo(() => {
@@ -211,7 +214,9 @@ function ChartTooltipContent({
                     </span>
                     {item.value != null && (
                       <span className="text-foreground font-mono font-medium tabular-nums">
-                        {item.value.toLocaleString()}
+                        {typeof item.value === 'number'
+                          ? item.value.toLocaleString()
+                          : String(item.value)}
                       </span>
                     )}
                   </div>
@@ -264,7 +269,7 @@ function ChartLegendContent({
             ) : (
               <div
                 className="h-2 w-2 shrink-0 rounded-[2px]"
-                style={{ backgroundColor: item.color }}
+                style={{ backgroundColor: (item as any).color }}
               />
             )}
             {itemConfig?.label}
@@ -284,9 +289,9 @@ function getPayloadConfigFromPayload(
 
   const payloadPayload =
     'payload' in payload &&
-    typeof payload.payload === 'object' &&
-    payload.payload !== null
-      ? payload.payload
+    typeof (payload as any).payload === 'object' &&
+    (payload as any).payload !== null
+      ? (payload as any).payload
       : undefined
 
   let configLabelKey: string = key
